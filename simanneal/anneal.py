@@ -7,7 +7,7 @@ import copy
 import datetime
 import math
 import pickle
-import random
+import numpy as np
 import signal
 import sys
 import time
@@ -49,7 +49,8 @@ class Annealer(object):
     best_energy = None
     start = None
 
-    def __init__(self, initial_state=None, load_state=None):
+    def __init__(self, initial_state=None, load_state=None, seed=0):
+        self.rng = np.random.default_rng(seed)
         if initial_state is not None:
             self.state = self.copy_state(initial_state)
         elif load_state:
@@ -208,7 +209,7 @@ class Annealer(object):
             else:
                 E += dE
             trials += 1
-            if dE > 0.0 and math.exp(-dE / T) < random.random():
+            if dE > 0.0 and math.exp(-dE / T) < self.rng.random():
                 # Restore previous state
                 self.state = self.copy_state(prevState)
                 E = prevEnergy
@@ -256,7 +257,7 @@ class Annealer(object):
                     dE = E - prevEnergy
                 else:
                     E = prevEnergy + dE
-                if dE > 0.0 and math.exp(-dE / T) < random.random():
+                if dE > 0.0 and math.exp(-dE / T) < self.rng.random():
                     self.state = self.copy_state(prevState)
                     E = prevEnergy
                 else:
